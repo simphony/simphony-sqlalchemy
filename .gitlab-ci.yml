@@ -1,0 +1,12 @@
+image: "registry.gitlab.cc-asp.fraunhofer.de:4567/simphony/cudsqlalchemy"
+
+stages:
+  - build
+
+build_job:
+  stage: build
+  script:
+    - flake8 cudsqlalchemy/
+    - python3 setup.py install
+    - python3 setup.py test
+
