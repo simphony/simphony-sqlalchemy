@@ -9,7 +9,6 @@ import sqlalchemy
 from cuds.session.db.conditions import (EqualsCondition,
                                         AndCondition)
 from cuds.session.db.sql_wrapper_session import SqlWrapperSession
-from cuds.generator.ontology_datatypes import convert_from
 
 
 class SqlAlchemyWrapperSession(SqlWrapperSession):
@@ -50,7 +49,7 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
         sqlalchemy_columns = [getattr(table.c, column) for column in columns]
         s = sqlalchemy.sql.select(sqlalchemy_columns).where(condition)
         c = self._connection.execute(s)
-        return self._convert_values(c, columns, datatypes)
+        return c
 
     # OVERRIDE
     def _db_create(self, table_name, columns, datatypes,
@@ -73,7 +72,7 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
     def _db_insert(self, table_name, columns, values, datatypes):
         table = self._get_sqlalchemy_table(table_name)
         stmt = table.insert().values(**{
-            column: convert_from(value, datatypes[column])
+            column: value
             for column, value in zip(columns, values)
         })
         self._connection.execute(stmt)
@@ -85,7 +84,7 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
         stmt = table.update() \
             .where(condition) \
             .values(**{
-                column: convert_from(value, datatypes[column])
+                column: value
                 for column, value in zip(columns, values)
             })
         self._connection.execute(stmt)
@@ -115,7 +114,7 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
         if condition is None:
             return True
         if isinstance(condition, EqualsCondition):
-            value = convert_from(condition.value, condition.datatype)
+            value = condition.value
             table = self._get_sqlalchemy_table(condition.table_name)
             column = getattr(table.c, condition.column_name)
             return column == value
