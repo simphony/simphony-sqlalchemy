@@ -1,4 +1,4 @@
-image: "registry.gitlab.cc-asp.fraunhofer.de:4567/simphony/cudsqlalchemy"
+image: "registry.gitlab.cc-asp.fraunhofer.de:4567/simphony/sqlalchemy-wrapper"
 
 stages:
   - build
@@ -6,7 +6,7 @@ stages:
 build_job:
   stage: build
   script:
-    - flake8 cudsqlalchemy/
+    - flake8 sqlalchemy_wrapper/
     - python3 setup.py install
     - python3 setup.py test
 

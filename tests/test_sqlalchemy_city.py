@@ -10,7 +10,7 @@ import sqlite3
 import uuid
 import unittest2 as unittest
 import cuds.classes
-from cudsqlalchemy.sqlalchemy_wrapper_session import \
+from sqlalchemy_wrapper.sqlalchemy_wrapper_session import \
     SqlAlchemyWrapperSession
 
 

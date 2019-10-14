@@ -1,4 +1,4 @@
-# cudSQLAlchemy
+# sqlalchemy_wrapper
 
 Wrapper for SQLAlchemy developed by the SimPhoNy group at Fraunhofer IWM.
 
@@ -43,7 +43,7 @@ TODO
 
 ## Directory structure
 
-- cudsqlalchemy -- sqlite wrapper files.
+- sqlalchemy_wrapper -- sqlite wrapper files.
 - tests -- unittesting of the code.
 - doc -- documentation related files.
 - examples - examples of usage.
