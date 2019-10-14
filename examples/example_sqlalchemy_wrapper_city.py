@@ -2,7 +2,7 @@ import os
 import cuds.classes
 from cuds.classes import CUBA
 from cuds.utils import pretty_print
-from cudsqlalchemy.sqlalchemy_wrapper_session import \
+from sqlalchemy_wrapper.sqlalchemy_wrapper_session import \
     SqlAlchemyWrapperSession
 
 try:
