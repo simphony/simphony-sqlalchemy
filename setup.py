@@ -18,6 +18,7 @@ setup(
     long_description=README_TEXT,
     install_requires=[
         'simphony>=3.0.0',
+        'sqlalchemy',
     ],
     packages=find_packages(),
     test_suite='tests'
