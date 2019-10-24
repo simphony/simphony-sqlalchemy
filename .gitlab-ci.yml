@@ -1,4 +1,4 @@
-image: "registry.gitlab.cc-asp.fraunhofer.de:4567/simphony/sqlalchemy-wrapper"
+# image: "registry.gitlab.cc-asp.fraunhofer.de:4567/simphony/sqlalchemy-wrapper"
 
 stages:
   - build
