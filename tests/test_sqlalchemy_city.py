@@ -188,6 +188,27 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
         check_db_cleared(self, "test.db")
 
+    def test_add_item_already_in_db(self):
+        """Test to add object from db somewhere else"""
+        with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
+            w = cuds.classes.CityWrapper(session=session)
+            c = cuds.classes.City("Freiburg")
+            p = cuds.classes.Citizen(name="Matthias")
+            c.add(p, rel=cuds.classes.HasInhabitant)
+            w.add(c)
+            session.commit()
+
+        with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
+            w = cuds.classes.CityWrapper(session=session)
+            # get the citizen
+            pw = next(session.load_by_cuba_key(cuds.classes.Citizen.cuba_key))
+            c = cuds.classes.City("Paris")
+            cw = w.add(c)
+            # add the citizen somewhere else
+            cw.add(pw, rel=cuds.classes.HasInhabitant)
+            session.commit()  # should not throw an error
+
+
 
 def check_state(test_case, c, p1, p2, table="test.db"):
     """Check if the sqlite tables are in the correct state."""
