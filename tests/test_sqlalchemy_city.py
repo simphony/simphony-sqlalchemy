@@ -190,6 +190,11 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
     def test_add_item_already_in_db(self):
         """Test to add object from db somewhere else"""
+        cuds.classes.Cuds.CUDS_SETTINGS["check_relationship_supported"] = False
+        cuds.classes.Cuds.CUDS_SETTINGS["check_cardinalities"] = False
+        cuds.classes.generated. \
+            PARSED_SETTINGS["check_relationship_supported"] = False
+        cuds.classes.generated.PARSED_SETTINGS["check_cardinalities"] = False
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
             w = cuds.classes.CityWrapper(session=session)
             c = cuds.classes.City("Freiburg")
@@ -207,7 +212,11 @@ class TestSqliteAlchemyCity(unittest.TestCase):
             # add the citizen somewhere else
             cw.add(pw, rel=cuds.classes.HasInhabitant)
             session.commit()  # should not throw an error
-
+        cuds.classes.Cuds.CUDS_SETTINGS["check_relationship_supported"] = True
+        cuds.classes.Cuds.CUDS_SETTINGS["check_cardinalities"] = True
+        cuds.classes.generated.\
+            PARSED_SETTINGS["check_relationship_supported"] = True
+        cuds.classes.generated.PARSED_SETTINGS["check_cardinalities"] = True
 
 
 def check_state(test_case, c, p1, p2, table="test.db"):
