@@ -54,6 +54,25 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
         check_state(self, c, p1, p2)
 
+    def test_update_first_level(self):
+        """Test updating the sqlite table."""
+        c = cuds.classes.City("Paris")
+
+        with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
+            wrapper = cuds.classes.CityWrapper(session)
+            cw = wrapper.add(c)
+            session.commit()
+
+            wrapper.remove(cw.uid)
+            session.commit()
+
+        with sqlite3.connect("test.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM %s WHERE first_level = 1;"
+                           % SqlAlchemyWrapperSession.MASTER_TABLE)
+            result = set(cursor.fetchall())
+            self.assertEqual(len(result), 0)
+
     def test_delete(self):
         """Test to delete cuds_objects from the sqlite table"""
         c = cuds.classes.City("Freiburg")
