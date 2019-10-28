@@ -12,7 +12,7 @@ No parts of this software may be used outside of this context.
 No redistribution is allowed without explicit written permission.
 
 ## Requirements
-- simphony>=3.0.0
+- osp-core>=3.0.0
 - sqlalchemy
 
 ## Installation
