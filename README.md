@@ -1,7 +1,7 @@
 [![pipeline status](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/badges/master/pipeline.svg)](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/commits/master)
 [![coverage report](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/badges/master/coverage.svg)](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/commits/master)
 
-# sqlalchemy_wrapper
+# SQLAlchemy Wrapper
 
 Wrapper for SQLAlchemy developed by the SimPhoNy group at Fraunhofer IWM.
 
