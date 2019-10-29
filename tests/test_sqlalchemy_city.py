@@ -54,6 +54,25 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
         check_state(self, c, p1, p2)
 
+    def test_update_first_level(self):
+        """Test updating the sqlite table."""
+        c = cuds.classes.City("Paris")
+
+        with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
+            wrapper = cuds.classes.CityWrapper(session)
+            cw = wrapper.add(c)
+            session.commit()
+
+            wrapper.remove(cw.uid)
+            session.commit()
+
+        with sqlite3.connect("test.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM %s WHERE first_level = 1;"
+                           % SqlAlchemyWrapperSession.MASTER_TABLE)
+            result = set(cursor.fetchall())
+            self.assertEqual(len(result), 0)
+
     def test_delete(self):
         """Test to delete cuds_objects from the sqlite table"""
         c = cuds.classes.City("Freiburg")
@@ -187,6 +206,36 @@ class TestSqliteAlchemyCity(unittest.TestCase):
             session._clear_database()
 
         check_db_cleared(self, "test.db")
+
+    def test_add_item_already_in_db(self):
+        """Test to add object from db somewhere else"""
+        cuds.classes.Cuds.CUDS_SETTINGS["check_relationship_supported"] = False
+        cuds.classes.Cuds.CUDS_SETTINGS["check_cardinalities"] = False
+        cuds.classes.generated. \
+            PARSED_SETTINGS["check_relationship_supported"] = False
+        cuds.classes.generated.PARSED_SETTINGS["check_cardinalities"] = False
+        with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
+            w = cuds.classes.CityWrapper(session=session)
+            c = cuds.classes.City("Freiburg")
+            p = cuds.classes.Citizen(name="Matthias")
+            c.add(p, rel=cuds.classes.HasInhabitant)
+            w.add(c)
+            session.commit()
+
+        with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
+            w = cuds.classes.CityWrapper(session=session)
+            # get the citizen
+            pw = next(session.load_by_cuba_key(cuds.classes.Citizen.cuba_key))
+            c = cuds.classes.City("Paris")
+            cw = w.add(c)
+            # add the citizen somewhere else
+            cw.add(pw, rel=cuds.classes.HasInhabitant)
+            session.commit()  # should not throw an error
+        cuds.classes.Cuds.CUDS_SETTINGS["check_relationship_supported"] = True
+        cuds.classes.Cuds.CUDS_SETTINGS["check_cardinalities"] = True
+        cuds.classes.generated.\
+            PARSED_SETTINGS["check_relationship_supported"] = True
+        cuds.classes.generated.PARSED_SETTINGS["check_cardinalities"] = True
 
 
 def check_state(test_case, c, p1, p2, table="test.db"):

@@ -17,7 +17,7 @@ setup(
     keywords='simphony, cuds, Fraunhofer IWM, sqlalchemy',
     long_description=README_TEXT,
     install_requires=[
-        'simphony>=3.0.0',
+        'osp-core>=3.0.0',
         'sqlalchemy',
     ],
     packages=find_packages(),
