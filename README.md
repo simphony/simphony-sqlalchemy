@@ -12,7 +12,21 @@ No parts of this software may be used outside of this context.
 No redistribution is allowed without explicit written permission.
 
 ## Requirements
-- simphony>=3.0.0
+- osp-core>=3.0.0
+- sqlalchemy
+- 
+## Requirements
+
+The SimLammps wrapper is built on top of the [OSP core](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core) package.
+The following table describes the version compatability between these two packages.
+
+| __SQLAlchemy wrapper__ | __OSP core__ |
+|   :---:   |   :---:  |
+|   1.0.0   |   3.1.x-beta  |
+
+The releases of OSP core are available [here](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core/-/releases).
+
+##### Additional required packages
 - sqlalchemy
 
 ## Installation
