@@ -15,4 +15,6 @@ build_job:
     - flake8 sqlalchemy_wrapper/
     - python3 setup.py install
     - python3 setup.py test
-
+    - coverage run setup.py test
+    - coverage report --omit=cuds/classes/generated/*,cuds/testing/* --skip-covered
+    
