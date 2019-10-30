@@ -1,7 +1,7 @@
 [![pipeline status](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/badges/master/pipeline.svg)](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/commits/master)
 [![coverage report](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/badges/master/coverage.svg)](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/commits/master)
 
-# sqlalchemy_wrapper
+# SQLAlchemy Wrapper
 
 Wrapper for SQLAlchemy developed by the SimPhoNy group at Fraunhofer IWM.
 
@@ -12,7 +12,17 @@ No parts of this software may be used outside of this context.
 No redistribution is allowed without explicit written permission.
 
 ## Requirements
-- osp-core>=3.0.0
+
+The SQLAlchemy wrapper is built on top of the [OSP core](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core) package.
+The following table describes the version compatability between these two packages.
+
+| __SQLAlchemy wrapper__ | __OSP core__ |
+|   :---:   |   :---:  |
+|   1.0.0   |   3.1.x-beta  |
+
+The releases of OSP core are available [here](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core/-/releases).
+
+##### Additional required packages
 - sqlalchemy
 
 ## Installation
