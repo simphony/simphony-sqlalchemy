@@ -141,6 +141,8 @@ class TestSqliteAlchemyCity(unittest.TestCase):
             self.assertIs(next(r), cs)
             r = session.load_by_oclass(CITY.CITIZEN)
             self.assertEqual(set(r), {p1, p2, p3})
+            r = session.load_by_oclass(CITY.PERSON)
+            self.assertEqual(set(r), {p1, p2, p3})
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
             wrapper = CITY.CITY_WRAPPER(session=session)
