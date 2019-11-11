@@ -6,9 +6,9 @@
 # No redistribution is allowed without explicit written permission.
 
 import sqlalchemy
-from cuds.session.db.conditions import (EqualsCondition,
-                                        AndCondition)
-from cuds.session.db.sql_wrapper_session import SqlWrapperSession
+from osp.core.session.db.conditions import (EqualsCondition,
+                                            AndCondition)
+from osp.core.session.db.sql_wrapper_session import SqlWrapperSession
 
 
 class SqlAlchemyWrapperSession(SqlWrapperSession):
@@ -116,7 +116,7 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
         if isinstance(condition, EqualsCondition):
             value = condition.value
             table = self._get_sqlalchemy_table(condition.table_name)
-            column = getattr(table.c, condition.column_name)
+            column = getattr(table.c, condition.column)
             return column == value
         if isinstance(condition, AndCondition):
             return sqlalchemy.sql.and_(*[self._get_sqlalchemy_condition(c)

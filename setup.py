@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 from packageinfo import VERSION, NAME
 
@@ -20,6 +20,6 @@ setup(
         'osp-core>=3.0.0',
         'sqlalchemy',
     ],
-    packages=find_packages(),
+    packages=find_namespace_packages(include=["osp.wrappers.*"]),
     test_suite='tests'
 )
