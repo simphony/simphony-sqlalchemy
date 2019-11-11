@@ -1,60 +1,59 @@
 import os
-import cuds.classes
-from cuds.classes import CUBA
-from cuds.utils import pretty_print
-from sqlalchemy_wrapper.sqlalchemy_wrapper_session import \
+from osp.core import CITY
+from osp.core.utils import pretty_print
+from osp.wrappers.sqlalchemy_wrapper_session import \
     SqlAlchemyWrapperSession
 
 try:
     # Construct the Datastructure.
-    c = cuds.classes.City("Freiburg")
-    p1 = cuds.classes.Citizen(name="Peter")
-    p2 = cuds.classes.Citizen(name="Hans")
-    p3 = cuds.classes.Citizen(name="Michel")
-    n = cuds.classes.Neighbourhood("Zähringen")
-    s = cuds.classes.Street("Le street")
-    b = cuds.classes.Building("Theater")
-    a = cuds.classes.Address(postal_code=79123, name='Le street', number=12)
-    c.add(p1, p2, p3, rel=cuds.classes.HasInhabitant)
+    c = CITY.CITY(name="Freiburg")
+    p1 = CITY.CITIZEN(name="Peter")
+    p2 = CITY.CITIZEN(name="Hans")
+    p3 = CITY.CITIZEN(name="Michel")
+    n = CITY.NEIGHBOURHOOD(name="Zähringen")
+    s = CITY.STREET(name="Le street")
+    b = CITY.BUILDING(name="Theater")
+    a = CITY.ADDRESS(postal_code=79123, name='Le street', number=12)
+    c.add(p1, p2, p3, rel=CITY.HAS_INHABITANT)
     c.add(n).add(s).add(b).add(a)
 
     print("Connect to DB via transport session")
     with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-        wrapper = cuds.classes.CityWrapper(session=session)
+        wrapper = CITY.CITY_WRAPPER(session=session)
         wrapper.add(c)
         wrapper.session.commit()
 
     print("Reconnect and check if data is still there")
     with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-        wrapper = cuds.classes.CityWrapper(session=session)
-        city = wrapper.get(cuba_key=CUBA.CITY)[0]
+        wrapper = CITY.CITY_WRAPPER(session=session)
+        city = wrapper.get(oclass=CITY.CITY)[0]
         pretty_print(city)
 
     print("Reconnect and make some changes")
     with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-        wrapper = cuds.classes.CityWrapper(session=session)
-        city = wrapper.get(cuba_key=CUBA.CITY)[0]
+        wrapper = CITY.CITY_WRAPPER(session=session)
+        city = wrapper.get(oclass=CITY.CITY)[0]
         city.name = "Paris"
         wrapper.session.commit()
 
     print("Reconnect and check if changes were successful")
     with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-        wrapper = cuds.classes.CityWrapper(session=session)
-        city = wrapper.get(cuba_key=CUBA.CITY)[0]
+        wrapper = CITY.CITY_WRAPPER(session=session)
+        city = wrapper.get(oclass=CITY.CITY)[0]
         pretty_print(city)
 
     print("Delete the city")
     with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-        wrapper = cuds.classes.CityWrapper(session=session)
-        city = wrapper.get(cuba_key=CUBA.CITY)[0]
+        wrapper = CITY.CITY_WRAPPER(session=session)
+        city = wrapper.get(oclass=CITY.CITY)[0]
         wrapper.remove(city)
         wrapper.session.prune()
         wrapper.session.commit()
 
     print("Reconnect and check if deletion was successful")
     with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-        wrapper = cuds.classes.CityWrapper(session=session)
-        print("All cities:", wrapper.get(cuba_key=CUBA.CITY))
+        wrapper = CITY.CITY_WRAPPER(session=session)
+        print("All cities:", wrapper.get(oclass=CITY.CITY))
 
 finally:
     if os.path.exists("test.db"):
