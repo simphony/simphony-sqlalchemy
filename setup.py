@@ -21,5 +21,9 @@ setup(
         'sqlalchemy',
     ],
     packages=find_namespace_packages(include=["osp.wrappers.*"]),
-    test_suite='tests'
+    test_suite='tests',
+    entry_points={
+        'wrappers': 'simphony_sqlalchemy = osp.wrappers.'
+                    'sqlalchemy_wrapper_session:SqlAlchemyWrapperSession'
+    }
 )
