@@ -114,11 +114,11 @@ class TestSqliteAlchemyCity(unittest.TestCase):
             self.assertEqual(wrapper.get(c.uid).name, "Freiburg")
             self.assertEqual(
                 session._registry.get(c.uid)._neighbours[CITY.HAS_INHABITANT],
-                {p1.uid: p1.is_a, p2.uid: p2.is_a,
-                 p3.uid: p3.is_a})
+                {p1.uid: p1.oclass, p2.uid: p2.oclass,
+                 p3.uid: p3.oclass})
             self.assertEqual(
                 session._registry.get(c.uid)._neighbours[CITY.IS_PART_OF],
-                {wrapper.uid: wrapper.is_a})
+                {wrapper.uid: wrapper.oclass})
 
     def test_load_by_oclass(self):
         c = CITY.CITY(name="Freiburg")
@@ -181,15 +181,15 @@ class TestSqliteAlchemyCity(unittest.TestCase):
             self.assertEqual(p3w.name, "Julia")
             self.assertEqual(
                 p3w._neighbours[CITY.IS_CHILD_OF],
-                {p1.uid: p1.is_a, p2.uid: p2.is_a}
+                {p1.uid: p1.oclass, p2.uid: p2.oclass}
             )
             self.assertEqual(
                 p2w._neighbours[CITY.HAS_CHILD],
-                {p3.uid: p3.is_a}
+                {p3.uid: p3.oclass}
             )
             self.assertEqual(
                 p2w._neighbours[CITY.IS_INHABITANT_OF],
-                {c.uid: c.is_a}
+                {c.uid: c.oclass}
             )
 
     def test_clear_database(self):
@@ -238,9 +238,9 @@ def check_state(test_case, c, p1, p2, table="test.db"):
                        % SqlAlchemyWrapperSession.MASTER_TABLE)
         result = set(cursor.fetchall())
         test_case.assertEqual(result, {
-            (str(c.uid), str(c.is_a), 1),
-            (str(p1.uid), str(p1.is_a), 0),
-            (str(p2.uid), str(p2.is_a), 0)
+            (str(c.uid), str(c.oclass), 1),
+            (str(p1.uid), str(p1.oclass), 0),
+            (str(p2.uid), str(p2.oclass), 0)
         })
 
         cursor.execute("SELECT origin, target, name, target_oclass FROM %s;"
