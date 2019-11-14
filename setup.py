@@ -20,6 +20,9 @@ setup(
         'osp-core>=3.0.0',
         'sqlalchemy',
     ],
+    tests_require=[
+        "unittest2",
+    ],
     packages=find_namespace_packages(include=["osp.wrappers.*"]),
     test_suite='tests',
     entry_points={
