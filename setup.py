@@ -19,6 +19,7 @@ setup(
     install_requires=[
         'osp-core>=3.0.0',
         'sqlalchemy',
+        'psycopg2'
     ],
     tests_require=[
         "unittest2",
