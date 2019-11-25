@@ -19,11 +19,13 @@ The following table describes the version compatability between these two packag
 | __SQLAlchemy wrapper__ | __OSP core__ |
 |   :---:   |   :---:  |
 |   1.0.0   |   3.1.x-beta  |
+|   2.0.0   |   3.2.x-beta  |
 
 The releases of OSP core are available [here](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core/-/releases).
 
 ##### Additional required packages
 - sqlalchemy
+- psycopg2
 
 ## Installation
 
