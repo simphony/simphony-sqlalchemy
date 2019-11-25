@@ -1,4 +1,4 @@
-from setuptools import setup, find_namespace_packages
+from setuptools import setup, find_packages
 
 from packageinfo import VERSION, NAME
 
@@ -24,7 +24,7 @@ setup(
     tests_require=[
         "unittest2",
     ],
-    packages=find_namespace_packages(include=["osp.wrappers.*"]),
+    packages=find_packages(),
     test_suite='tests',
     entry_points={
         'wrappers': 'simphony_sqlalchemy = osp.wrappers.'
