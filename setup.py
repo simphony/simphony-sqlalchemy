@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 from packageinfo import VERSION, NAME
 
@@ -19,7 +19,15 @@ setup(
     install_requires=[
         'osp-core>=3.0.0',
         'sqlalchemy',
+        'psycopg2'
     ],
-    packages=find_packages(),
-    test_suite='tests'
+    tests_require=[
+        "unittest2",
+    ],
+    packages=find_namespace_packages(include=["osp.wrappers.*"]),
+    test_suite='tests',
+    entry_points={
+        'wrappers': 'simphony_sqlalchemy = osp.wrappers.'
+                    'sqlalchemy_wrapper_session:SqlAlchemyWrapperSession'
+    }
 )

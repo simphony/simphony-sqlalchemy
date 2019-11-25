@@ -8,13 +8,12 @@ build_job:
   script:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.cc-asp.fraunhofer.de/simphony/osp-core
     - cd osp-core
-    - if [ "$CI_COMMIT_REF_NAME" = "master" ]; then branch="master"; else branch="dev"; fi
-    - git checkout ${branch}
+    - git checkout $CI_COMMIT_REF_NAME || git checkout dev
     - python3 setup.py install -o city
     - cd ..
-    - flake8 sqlalchemy_wrapper/
+    - flake8 osp/ tests/
     - python3 setup.py install
     - python3 setup.py test
     - coverage run setup.py test
-    - coverage report --omit=cuds/classes/generated/*,cuds/testing/* --skip-covered
+    - coverage report --omit=tests/*,.eggs/* --skip-covered
     
