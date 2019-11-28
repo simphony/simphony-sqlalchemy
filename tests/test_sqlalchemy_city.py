@@ -238,7 +238,6 @@ def check_state(test_case, c, p1, p2, table="test.db"):
                        % SqlAlchemyWrapperSession.MASTER_TABLE)
         result = set(cursor.fetchall())
         test_case.assertEqual(result, {
-            (str(uuid.UUID(int=0)), "", 0),
             (str(c.uid), str(c.oclass), 1),
             (str(p1.uid), str(p1.oclass), 0),
             (str(p2.uid), str(p2.oclass), 0)
