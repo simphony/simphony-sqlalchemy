@@ -53,7 +53,7 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
 
     # OVERRIDE
     def _db_create(self, table_name, columns, datatypes,
-                   primary_key, foreign_key, index):
+                   primary_key, foreign_key, indexes):
         if table_name in self._metadata.tables:
             return
         columns = [
@@ -62,10 +62,12 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
                 self._to_sqlalchemy_datatype(datatypes[c]),
                 *([sqlalchemy.ForeignKey(".".join(foreign_key[c]))]
                   if c in foreign_key else []),
-                primary_key=c in primary_key,
-                index=c in index)
+                primary_key=c in primary_key)
             for c in columns]
-        sqlalchemy.Table(table_name, self._metadata, *columns)
+        t = sqlalchemy.Table(table_name, self._metadata, *columns)
+        for index in indexes:
+            sqlalchemy.Index("idx_%s_%s" % (table_name, "_".join(index)),
+                             *[getattr(t.c, x) for x in index])
         self._metadata.create_all()
 
     # OVERRIDE

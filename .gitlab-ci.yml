@@ -9,11 +9,12 @@ build_job:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.cc-asp.fraunhofer.de/simphony/osp-core
     - cd osp-core
     - git checkout $CI_COMMIT_REF_NAME || git checkout dev
-    - python3 setup.py install -o city
+    - python3 setup.py install
+    - pico install city
     - cd ..
     - flake8 osp/ tests/
     - python3 setup.py install
     - python3 setup.py test
     - coverage run setup.py test
-    - coverage report --omit=tests/*,.eggs/* --skip-covered
+    - coverage report --omit=tests/*,*/.eggs/* --skip-covered
     
