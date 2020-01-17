@@ -274,7 +274,8 @@ def check_db_cleared(test_case, table):
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM %s;"
                        % SqlAlchemyWrapperSession.MASTER_TABLE)
-        test_case.assertEqual(list(cursor), list())
+        test_case.assertEqual(
+            list(cursor), [('00000000-0000-0000-0000-000000000000', '', 0)])
         cursor.execute("SELECT * FROM %s;"
                        % SqlAlchemyWrapperSession.RELATIONSHIP_TABLE)
         test_case.assertEqual(list(cursor), list())
