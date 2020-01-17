@@ -1,3 +1,5 @@
 NAME = "simphony_sqlalchemy"
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 BUILD = "1"
+OSP_CORE_MIN = "3.3.1"
+OSP_CORE_MAX = "3.4.0"
