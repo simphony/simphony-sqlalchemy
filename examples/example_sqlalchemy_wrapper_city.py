@@ -29,6 +29,14 @@ try:
         city = wrapper.get(oclass=CITY.CITY)[0]
         pretty_print(city)
 
+    print("Extract all CUDS objects of a certain CUBA class")
+    with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
+        wrapper = CITY.CITY_WRAPPER(session=session)
+        citizens = wrapper.session.load_by_oclass(oclass=CITY.CITIZEN)
+        print("All citizens:")
+        for citizen in citizens:
+            pretty_print(citizen)
+
     print("Reconnect and make some changes")
     with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
         wrapper = CITY.CITY_WRAPPER(session=session)
