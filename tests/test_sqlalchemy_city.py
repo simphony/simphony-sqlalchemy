@@ -13,7 +13,7 @@ from osp.wrappers.sqlalchemy_wrapper_session import \
     SqlAlchemyWrapperSession
 
 try:
-    from osp.core import CITY
+    from osp.core.namespaces import city
 except ImportError:
     from osp.core.ontology import Parser
     CITY = Parser().parse("city")
@@ -29,13 +29,13 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
     def test_insert(self):
         """Test inserting in the sqlite table."""
-        c = CITY.CITY(name="Freiburg")
-        p1 = CITY.CITIZEN(name="Peter")
-        p2 = CITY.CITIZEN(name="Georg")
-        c.add(p1, p2, rel=CITY.HAS_INHABITANT)
+        c = city.City(name="Freiburg")
+        p1 = city.Citizen(name="Peter")
+        p2 = city.Citizen(name="Georg")
+        c.add(p1, p2, rel=city.hasInhabitant)
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
 
@@ -43,17 +43,17 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
     def test_update(self):
         """Test updating the sqlite table."""
-        c = CITY.CITY(name="Paris")
-        p1 = CITY.CITIZEN(name="Peter")
-        c.add(p1, rel=CITY.HAS_INHABITANT)
+        c = city.City(name="Paris")
+        p1 = city.Citizen(name="Peter")
+        c.add(p1, rel=city.hasInhabitant)
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             cw = wrapper.add(c)
             session.commit()
 
-            p2 = CITY.CITIZEN(name="Georg")
-            cw.add(p2, rel=CITY.HAS_INHABITANT)
+            p2 = city.Citizen(name="Georg")
+            cw.add(p2, rel=city.hasInhabitant)
             cw.name = "Freiburg"
             session.commit()
 
@@ -61,10 +61,10 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
     def test_update_first_level(self):
         """Test updating the sqlite table."""
-        c = CITY.CITY(name="Paris")
+        c = city.City(name="Paris")
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             cw = wrapper.add(c)
             session.commit()
 
@@ -80,14 +80,14 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
     def test_delete(self):
         """Test to delete cuds_objects from the sqlite table"""
-        c = CITY.CITY(name="Freiburg")
-        p1 = CITY.CITIZEN(name="Peter")
-        p2 = CITY.CITIZEN(name="Georg")
-        p3 = CITY.CITIZEN(name="Hans")
-        c.add(p1, p2, p3, rel=CITY.HAS_INHABITANT)
+        c = city.City(name="Freiburg")
+        p1 = city.Citizen(name="Peter")
+        p2 = city.Citizen(name="Georg")
+        p3 = city.Citizen(name="Hans")
+        c.add(p1, p2, p3, rel=city.hasInhabitant)
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             cw = wrapper.add(c)
             session.commit()
 
@@ -99,79 +99,79 @@ class TestSqliteAlchemyCity(unittest.TestCase):
 
     def test_init(self):
         """Test of first level of children are loaded automatically."""
-        c = CITY.CITY(name="Freiburg")
-        p1 = CITY.CITIZEN(name="Peter")
-        p2 = CITY.CITIZEN(name="Anna")
-        p3 = CITY.CITIZEN(name="Julia")
-        c.add(p1, p2, p3, rel=CITY.HAS_INHABITANT)
-        p1.add(p3, rel=CITY.HAS_CHILD)
-        p2.add(p3, rel=CITY.HAS_CHILD)
+        c = city.City(name="Freiburg")
+        p1 = city.Citizen(name="Peter")
+        p2 = city.Citizen(name="Anna")
+        p3 = city.Citizen(name="Julia")
+        c.add(p1, p2, p3, rel=city.hasInhabitant)
+        p1.add(p3, rel=city.hasChild)
+        p2.add(p3, rel=city.hasChild)
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             self.assertEqual(set(session._registry.keys()),
                              {c.uid, wrapper.uid})
             self.assertEqual(wrapper.get(c.uid).name, "Freiburg")
             self.assertEqual(
-                session._registry.get(c.uid)._neighbours[CITY.HAS_INHABITANT],
+                session._registry.get(c.uid)._neighbors[city.hasInhabitant],
                 {p1.uid: p1.oclass, p2.uid: p2.oclass,
                  p3.uid: p3.oclass})
             self.assertEqual(
-                session._registry.get(c.uid)._neighbours[CITY.IS_PART_OF],
+                session._registry.get(c.uid)._neighbors[city.isPartOf],
                 {wrapper.uid: wrapper.oclass})
 
     def test_load_by_oclass(self):
-        c = CITY.CITY(name="Freiburg")
-        p1 = CITY.CITIZEN(name="Peter")
-        p2 = CITY.CITIZEN(name="Anna")
-        p3 = CITY.CITIZEN(name="Julia")
-        c.add(p1, p2, p3, rel=CITY.HAS_INHABITANT)
-        p1.add(p3, rel=CITY.HAS_CHILD)
-        p2.add(p3, rel=CITY.HAS_CHILD)
+        c = city.City(name="Freiburg")
+        p1 = city.Citizen(name="Peter")
+        p2 = city.Citizen(name="Anna")
+        p3 = city.Citizen(name="Julia")
+        c.add(p1, p2, p3, rel=city.hasInhabitant)
+        p1.add(p3, rel=city.hasChild)
+        p2.add(p3, rel=city.hasChild)
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             cs = wrapper.get(c.uid)
-            r = session.load_by_oclass(CITY.CITY)
+            r = session.load_by_oclass(city.City)
             self.assertIs(next(r), cs)
-            r = session.load_by_oclass(CITY.CITIZEN)
+            r = session.load_by_oclass(city.Citizen)
             self.assertEqual(set(r), {p1, p2, p3})
-            r = session.load_by_oclass(CITY.PERSON)
+            r = session.load_by_oclass(city.Person)
             self.assertEqual(set(r), {p1, p2, p3})
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             cs = wrapper.get(c.uid)
-            r = session.load_by_oclass(CITY.STREET)
+            r = session.load_by_oclass(city.Street)
             self.assertRaises(StopIteration, next, r)
 
     def test_load_missing(self):
         """Test if missing objects are loaded automatically."""
-        c = CITY.CITY(name="Freiburg")
-        p1 = CITY.CITIZEN(name="Peter")
-        p2 = CITY.CITIZEN(name="Anna")
-        p3 = CITY.CITIZEN(name="Julia")
-        c.add(p1, p2, p3, rel=CITY.HAS_INHABITANT)
-        p1.add(p3, rel=CITY.HAS_CHILD)
-        p2.add(p3, rel=CITY.HAS_CHILD)
+        c = city.City(name="Freiburg")
+        p1 = city.Citizen(name="Peter")
+        p2 = city.Citizen(name="Anna")
+        p3 = city.Citizen(name="Julia")
+        c.add(p1, p2, p3, rel=city.hasInhabitant)
+        p1.add(p3, rel=city.hasChild)
+        p2.add(p3, rel=city.hasChild)
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             self.assertEqual(set(session._registry.keys()),
                              {c.uid, wrapper.uid})
             cw = wrapper.get(c.uid)
@@ -185,29 +185,29 @@ class TestSqliteAlchemyCity(unittest.TestCase):
             self.assertEqual(p2w.name, "Anna")
             self.assertEqual(p3w.name, "Julia")
             self.assertEqual(
-                p3w._neighbours[CITY.IS_CHILD_OF],
+                p3w._neighbors[city.isChildOf],
                 {p1.uid: p1.oclass, p2.uid: p2.oclass}
             )
             self.assertEqual(
-                p2w._neighbours[CITY.HAS_CHILD],
+                p2w._neighbors[city.hasChild],
                 {p3.uid: p3.oclass}
             )
             self.assertEqual(
-                p2w._neighbours[CITY.IS_INHABITANT_OF],
+                p2w._neighbors[city.INVERSE_OF_hasInhabitant],
                 {c.uid: c.oclass}
             )
 
     def test_clear_database(self):
-        c = CITY.CITY(name="Freiburg")
-        p1 = CITY.CITIZEN(name="Peter")
-        p2 = CITY.CITIZEN(name="Anna")
-        p3 = CITY.CITIZEN(name="Julia")
-        c.add(p1, p2, p3, rel=CITY.HAS_INHABITANT)
-        p1.add(p3, rel=CITY.HAS_CHILD)
-        p2.add(p3, rel=CITY.HAS_CHILD)
+        c = city.City(name="Freiburg")
+        p1 = city.Citizen(name="Peter")
+        p2 = city.Citizen(name="Anna")
+        p3 = city.Citizen(name="Julia")
+        c.add(p1, p2, p3, rel=city.hasInhabitant)
+        p1.add(p3, rel=city.hasChild)
+        p2.add(p3, rel=city.hasChild)
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            wrapper = CITY.CITY_WRAPPER(session=session)
+            wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
             session._clear_database()
@@ -217,21 +217,21 @@ class TestSqliteAlchemyCity(unittest.TestCase):
     def test_add_item_already_in_db(self):
         """Test to add object from db somewhere else"""
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            w = CITY.CITY_WRAPPER(session=session)
-            c = CITY.CITY(name="Freiburg")
-            p = CITY.CITIZEN(name="Matthias")
-            c.add(p, rel=CITY.HAS_INHABITANT)
+            w = city.CityWrapper(session=session)
+            c = city.City(name="Freiburg")
+            p = city.Citizen(name="Matthias")
+            c.add(p, rel=city.hasInhabitant)
             w.add(c)
             session.commit()
 
         with SqlAlchemyWrapperSession("sqlite:///test.db") as session:
-            w = CITY.CITY_WRAPPER(session=session)
+            w = city.CityWrapper(session=session)
             # get the citizen
-            pw = next(session.load_by_oclass(CITY.CITIZEN))
-            c = CITY.CITY(name="Paris")
+            pw = next(session.load_by_oclass(city.Citizen))
+            c = city.City(name="Paris")
             cw = w.add(c)
             # add the citizen somewhere else
-            cw.add(pw, rel=CITY.HAS_INHABITANT)
+            cw.add(pw, rel=city.hasInhabitant)
             session.commit()  # should not throw an error
 
 
@@ -253,16 +253,18 @@ def check_state(test_case, c, p1, p2, table="test.db"):
                        % SqlAlchemyWrapperSession.RELATIONSHIP_TABLE)
         result = set(cursor.fetchall())
         test_case.assertEqual(result, {
-            (str(c.uid), str(p1.uid), "CITY.HAS_INHABITANT", "CITY.CITIZEN"),
-            (str(c.uid), str(p2.uid), "CITY.HAS_INHABITANT", "CITY.CITIZEN"),
-            (str(p1.uid), str(c.uid), "CITY.IS_INHABITANT_OF", "CITY.CITY"),
-            (str(p2.uid), str(c.uid), "CITY.IS_INHABITANT_OF", "CITY.CITY"),
+            (str(c.uid), str(p1.uid), "city.hasInhabitant", "city.Citizen"),
+            (str(c.uid), str(p2.uid), "city.hasInhabitant", "city.Citizen"),
+            (str(p1.uid), str(c.uid), "city.INVERSE_OF_hasInhabitant",
+             "city.City"),
+            (str(p2.uid), str(c.uid), "city.INVERSE_OF_hasInhabitant",
+             "city.City"),
             (str(c.uid), str(uuid.UUID(int=0)),
-                "CITY.IS_PART_OF", "CITY.CITY_WRAPPER")
+                "city.isPartOf", "city.CityWrapper")
         })
 
         cursor.execute("SELECT uid, name, coordinates___0, coordinates___1 "
-                       "FROM CUDS_CITY___CITY;")
+                       "FROM CUDS_city___City;")
         result = set(cursor.fetchall())
         test_case.assertEqual(result, {
             (str(c.uid), "Freiburg", 0, 0)
@@ -279,9 +281,9 @@ def check_db_cleared(test_case, table):
         cursor.execute("SELECT * FROM %s;"
                        % SqlAlchemyWrapperSession.RELATIONSHIP_TABLE)
         test_case.assertEqual(list(cursor), list())
-        cursor.execute("SELECT * FROM CUDS_CITY___CITIZEN")
+        cursor.execute("SELECT * FROM CUDS_city___Citizen")
         test_case.assertEqual(list(cursor), list())
-        cursor.execute("SELECT * FROM CUDS_CITY___CITY")
+        cursor.execute("SELECT * FROM CUDS_city___Citizen")
         test_case.assertEqual(list(cursor), list())
 
 
