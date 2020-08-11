@@ -20,7 +20,8 @@ The following table describes the version compatability between these two packag
 |   :---:   |   :---:  |
 |   1.0.0   |   3.1.x-beta  |
 |   2.0.0   |   3.2.x-beta  |
-|   2.1.0   |   3.3.x-beta  |
+|   2.1.[0-1]   |   3.3.[1-8]-beta  |
+|   2.1.2   |   3.3.9-beta  |
 
 The releases of OSP core are available [here](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core/-/releases).
 
