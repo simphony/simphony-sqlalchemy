@@ -13,16 +13,17 @@ No redistribution is allowed without explicit written permission.
 
 ## Requirements
 
-The SQLAlchemy wrapper is built on top of the [OSP core](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core) package.
+The SQLAlchemy wrapper is built on top of the [OSP core](https://github.com/simphony/osp-core) package.
 The following table describes the version compatability between these two packages.
 
 | __SQLAlchemy wrapper__ | __OSP core__ |
 |   :---:   |   :---:  |
 |   1.0.0   |   3.1.x-beta  |
 |   2.0.0   |   3.2.x-beta  |
-|   2.1.0   |   3.3.x-beta  |
+|   2.1.[0-1]   |   3.3.[1-8]-beta  |
+|   2.1.2   |   3.4.X-beta  |
 
-The releases of OSP core are available [here](https://gitlab.cc-asp.fraunhofer.de/simphony/osp-core/-/releases).
+The releases of OSP core are available [here](https://github.com/simphony/osp-core/releases).
 
 ##### Additional required packages
 - sqlalchemy

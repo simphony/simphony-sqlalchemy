@@ -6,6 +6,8 @@
 # No redistribution is allowed without explicit written permission.
 
 import sqlalchemy
+import rdflib
+from osp.core.ontology.cuba import rdflib_cuba
 from osp.core.session.db.conditions import (EqualsCondition,
                                             AndCondition)
 from osp.core.session.db.sql_wrapper_session import SqlWrapperSession
@@ -125,31 +127,34 @@ class SqlAlchemyWrapperSession(SqlWrapperSession):
                                          for c in condition.conditions])
         raise NotImplementedError("Unsupported condition")
 
-    def _to_sqlalchemy_datatype(self, cuds_datatype):
+    def _to_sqlalchemy_datatype(self, rdflib_datatype):
         """Convert the given Cuds datatype to a datatype of sqlalchemy.
 
-        :param cuds_datatype: The given cuds_object datatype.
-        :type cuds_datatype: str
+        :param rdflib_datatype: The given cuds_object datatype.
+        :type rdflib_datatype: URIRef
         :raises NotImplementedError: Unsupported datatype given.
         :return: A sqlalchemy datatype.
         :rtype: str
         """
-        if cuds_datatype == "UUID":
+
+        if rdflib_datatype is None:
+            return sqlalchemy.String()
+        if rdflib_datatype == "UUID":
             return sqlalchemy.String(36)
-        if cuds_datatype == "INT":
+        if rdflib_datatype == rdflib.XSD.integer:
             return sqlalchemy.Integer
-        if cuds_datatype == "BOOL":
+        if rdflib_datatype == rdflib.XSD.boolean:
             return sqlalchemy.Boolean
-        if cuds_datatype == "FLOAT":
+        if rdflib_datatype == rdflib.XSD.float:
             return sqlalchemy.Float
-        elif cuds_datatype.startswith("STRING") and ":" in cuds_datatype:
-            return sqlalchemy.String(int(cuds_datatype.split(":")[1]))
-        elif cuds_datatype.startswith("STRING"):
+        if rdflib_datatype == rdflib.XSD.string:
             return sqlalchemy.String()
-        elif cuds_datatype.startswith("UNDEFINED"):
-            return sqlalchemy.String()
+        if str(rdflib_datatype).startswith(
+                str(rdflib_cuba["datatypes/STRING-"])):
+            return sqlalchemy.String(int(str(rdflib_datatype).split(":")[-1]))
         else:
-            raise NotImplementedError("Unsupported data type!")
+            raise NotImplementedError(f"Unsupported data type "
+                                      f"{rdflib_datatype}!")
 
     def _get_sqlalchemy_table(self, table_name):
         """Get the sqlalchemy table, either from metadata or load it.
