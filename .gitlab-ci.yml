@@ -18,7 +18,7 @@ build_job:
     - python3 setup.py install
     - pico install city
     - cd ..
-    - flake8 . --exclude=*/__init__.py,.eggs/,build/,.tox/ --ignore=W503
+    - flake8 . --exclude=*/__init__.py,.eggs/,build/,.tox/,osp-core/ --ignore=W503
     - python3 setup.py install
     - coverage run setup.py test
     - coverage report --omit=tests/*,*/.eggs/* --skip-covered
