@@ -4,7 +4,7 @@ import os
 import uuid
 import unittest2 as unittest
 import sqlite3
-from osp.wrappers.sqlalchemy_wrapper_session import SqlAlchemyWrapperSession
+from osp.wrappers.sqlalchemy import SqlAlchemySession
 
 try:
     from osp.core.namespaces import city
@@ -19,12 +19,12 @@ DB = "test_sqlalchemy.db"
 URL = "sqlite:///" + DB
 
 
-CUDS_TABLE = SqlAlchemyWrapperSession.CUDS_TABLE
-ENTITIES_TABLE = SqlAlchemyWrapperSession.ENTITIES_TABLE
-TYPES_TABLE = SqlAlchemyWrapperSession.TYPES_TABLE
-NAMESPACES_TABLE = SqlAlchemyWrapperSession.NAMESPACES_TABLE
-RELATIONSHIP_TABLE = SqlAlchemyWrapperSession.RELATIONSHIP_TABLE
-DATA_TABLE_PREFIX = SqlAlchemyWrapperSession.DATA_TABLE_PREFIX
+CUDS_TABLE = SqlAlchemySession.CUDS_TABLE
+ENTITIES_TABLE = SqlAlchemySession.ENTITIES_TABLE
+TYPES_TABLE = SqlAlchemySession.TYPES_TABLE
+NAMESPACES_TABLE = SqlAlchemySession.NAMESPACES_TABLE
+RELATIONSHIP_TABLE = SqlAlchemySession.RELATIONSHIP_TABLE
+DATA_TABLE_PREFIX = SqlAlchemySession.DATA_TABLE_PREFIX
 
 
 def data_tbl(suffix):
@@ -47,7 +47,7 @@ class TestSqliteCity(unittest.TestCase):
         p2 = city.Citizen(name="Georg")
         c.add(p1, p2, rel=city.hasInhabitant)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             wrapper.session.commit()
@@ -60,7 +60,7 @@ class TestSqliteCity(unittest.TestCase):
         p1 = city.Citizen(name="Peter")
         c.add(p1, rel=city.hasInhabitant)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             cw = wrapper.add(c)
             session.commit()
@@ -80,7 +80,7 @@ class TestSqliteCity(unittest.TestCase):
         p3 = city.Citizen(name="Hans")
         c.add(p1, p2, p3, rel=city.hasInhabitant)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             cw = wrapper.add(c)
             session.commit()
@@ -102,12 +102,12 @@ class TestSqliteCity(unittest.TestCase):
         p1.add(p3, rel=city.hasChild)
         p2.add(p3, rel=city.hasChild)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             self.assertEqual(set(session._registry.keys()),
                              {c.uid, wrapper.uid})
@@ -130,12 +130,12 @@ class TestSqliteCity(unittest.TestCase):
         p1.add(p3, rel=city.hasChild)
         p2.add(p3, rel=city.hasChild)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             self.assertEqual(set(session._registry.keys()),
                              {c.uid, wrapper.uid})
@@ -172,12 +172,12 @@ class TestSqliteCity(unittest.TestCase):
         p1.add(p3, rel=city.hasChild)
         p2.add(p3, rel=city.hasChild)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             cs = wrapper.get(c.uid)
             r = session.load_by_oclass(city.City)
@@ -187,7 +187,7 @@ class TestSqliteCity(unittest.TestCase):
             r = session.load_by_oclass(city.Person)
             self.assertEqual(set(r), {p1, p2, p3})
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             cs = wrapper.get(c.uid)
             r = session.load_by_oclass(city.Street)
@@ -203,7 +203,7 @@ class TestSqliteCity(unittest.TestCase):
         p1.add(p3, rel=city.hasChild)
         p2.add(p3, rel=city.hasChild)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             cw = wrapper.add(c)
             p1w, p2w, p3w = cw.get(p1.uid, p2.uid, p3.uid)
@@ -236,7 +236,7 @@ class TestSqliteCity(unittest.TestCase):
         p1.add(p3, rel=city.hasChild)
         p2.add(p3, rel=city.hasChild)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             cw = wrapper.add(c)
             p1w, p2w, p3w = cw.get(p1.uid, p2.uid, p3.uid)
@@ -261,10 +261,10 @@ class TestSqliteCity(unittest.TestCase):
     def test_clear_database(self):
         """Test clearing the database."""
         # db is empty (no error occurs)
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             session._clear_database()
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             wrapper.session.commit()
             session._clear_database()
@@ -278,7 +278,7 @@ class TestSqliteCity(unittest.TestCase):
         p1.add(p3, rel=city.hasChild)
         p2.add(p3, rel=city.hasChild)
 
-        with SqlAlchemyWrapperSession(URL) as session:
+        with SqlAlchemySession(URL) as session:
             wrapper = city.CityWrapper(session=session)
             wrapper.add(c)
             session.commit()
@@ -288,13 +288,13 @@ class TestSqliteCity(unittest.TestCase):
 
     def test_multiple_users(self):
         """Test what happens if multiple users access the database."""
-        with SqlAlchemyWrapperSession(URL) as session1:
+        with SqlAlchemySession(URL) as session1:
             wrapper1 = city.CityWrapper(session=session1)
             city1 = city.City(name="Freiburg")
             wrapper1.add(city1)
             session1.commit()
 
-            with SqlAlchemyWrapperSession(URL) as session2:
+            with SqlAlchemySession(URL) as session2:
                 wrapper2 = city.CityWrapper(session=session2)
                 wrapper2.add(city.City(name="Offenburg"))
                 session2.commit()
@@ -404,7 +404,7 @@ def check_db_cleared(test_case, db_file):
         test_case.assertEqual(list(cursor), list())
 
         # DATA TABLES
-        with SqlAlchemyWrapperSession(URL) as s:
+        with SqlAlchemySession(URL) as s:
             table_names = s._get_table_names(DATA_TABLE_PREFIX)
         for table_name in table_names:
             cursor.execute(f"SELECT * FROM `{table_name}`;")
