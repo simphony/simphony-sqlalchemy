@@ -1,6 +1,5 @@
 """Migrate sqlite databases with this module."""
 
-import os
 import argparse
 import logging
 from osp.wrappers.sqlalchemy import SqlAlchemySession

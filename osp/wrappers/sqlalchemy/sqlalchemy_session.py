@@ -1,3 +1,5 @@
+"""The session for the SqlAlchemy Wrapper."""
+
 import sqlalchemy
 import rdflib
 from osp.core.ontology.cuba import rdflib_cuba
@@ -7,8 +9,14 @@ from osp.core.session.db.sql_wrapper_session import SqlWrapperSession
 
 
 class SqlAlchemySession(SqlWrapperSession):
+    """The session for the SqlAlchemy Wrapper."""
 
     def __init__(self, url, **kwargs):
+        """Initialize the wrapper.
+
+        Args:
+            url (str): The SqlAlchemy URL to use to connect.
+        """
         super().__init__(engine=sqlalchemy.create_engine(url),
                          **kwargs)
         self._connection = self._engine.connect()
@@ -17,10 +25,12 @@ class SqlAlchemySession(SqlWrapperSession):
         self._metadata.reflect(self._engine)
 
     def __str__(self):
+        """Convert the session to a string."""
         return "SqlAlchemy Wrapper with engine %s" % self._engine
 
     # OVERRIDE
     def close(self):
+        """Close the connection to the database."""
         self._connection.close()
         self._engine.dispose()
 
@@ -157,7 +167,6 @@ class SqlAlchemySession(SqlWrapperSession):
         :return: A sqlalchemy datatype.
         :rtype: str
         """
-
         if rdflib_datatype is None:
             return sqlalchemy.String()
         if rdflib_datatype == "UUID":

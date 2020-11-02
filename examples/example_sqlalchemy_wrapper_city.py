@@ -1,3 +1,5 @@
+"""Test the wrapper."""
+
 import os
 from osp.core import CITY
 from osp.core.utils import pretty_print

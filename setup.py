@@ -1,3 +1,5 @@
+"""Install the wrapper."""
+
 from setuptools import setup, find_packages
 
 from packageinfo import VERSION, NAME

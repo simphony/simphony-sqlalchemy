@@ -1,3 +1,5 @@
+"""Describe version of the wrapper."""
+
 NAME = "simphony_sqlalchemy"
 VERSION = "2.2.0"
 BUILD = "1"
