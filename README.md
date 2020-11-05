@@ -22,6 +22,7 @@ The following table describes the version compatability between these two packag
 |   2.0.0   |   3.2.x-beta  |
 |   2.1.[0-1]   |   3.3.[1-8]-beta  |
 |   2.1.2   |   3.4.X-beta  |
+|   2.2.0   |   3.5.X-beta  |
 
 The releases of OSP core are available [here](https://github.com/simphony/osp-core/releases).
 
