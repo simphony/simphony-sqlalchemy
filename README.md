@@ -3,6 +3,8 @@
 
 # SQLAlchemy Wrapper
 
+*There is a known issue with Postgres Databases at the moment.*
+
 Wrapper for SQLAlchemy developed by the SimPhoNy group at Fraunhofer IWM.
 
 Copyright (c) 2014-2019, Adham Hashibon and Materials Informatics Team at Fraunhofer IWM.
