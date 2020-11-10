@@ -19,6 +19,7 @@ class SqlAlchemySession(SqlWrapperSession):
         """
         super().__init__(engine=sqlalchemy.create_engine(url),
                          **kwargs)
+        self._url = url
         self._connection = self._engine.connect()
         self._transaction = None
         self._metadata = sqlalchemy.MetaData(self._connection)
@@ -81,10 +82,21 @@ class SqlAlchemySession(SqlWrapperSession):
     def _db_drop(self, table_name):
         self._get_sqlalchemy_table(table_name).drop()
 
+    def _dialect_insert(self, table, values):
+        if self._url.startswith("postgres"):
+            from sqlalchemy.dialects.postgresql import insert
+            return insert(table).values(**values).on_conflict_do_nothing()
+        if self._url.startswith("mysql"):
+            from sqlalchemy.dialects.mysql import insert
+            return insert(table).values(**values).on_duplicate_key_update(
+                **values
+            )
+        return table.insert().values(**values)
+
     # OVERRIDE
     def _db_insert(self, table_name, columns, values, datatypes):
         table = self._get_sqlalchemy_table(table_name)
-        stmt = table.insert().values(**{
+        stmt = self._dialect_insert(table, {
             column: value
             for column, value in zip(columns, values)
         })
