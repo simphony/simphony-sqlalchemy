@@ -13,6 +13,8 @@ Redistribution and use are limited to the scope agreed with the end user.
 No parts of this software may be used outside of this context.
 No redistribution is allowed without explicit written permission.
 
+Tested with SQLite and Postgresql backends.
+
 ## Requirements
 
 The SQLAlchemy wrapper is built on top of the [OSP core](https://github.com/simphony/osp-core) package.

@@ -1,7 +1,19 @@
 # image: "registry.gitlab.cc-asp.fraunhofer.de:4567/simphony/sqlalchemy-wrapper"
 
+variables:
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "123-postgres"
+  POSTGRES_DB: "postgres"
+  POSTGRES_HOST: "db"
+
 stages:
   - build
+
+services:
+  - name: postgres:11.7
+    alias: db
+    entrypoint: ["docker-entrypoint.sh"]
+    command: ["postgres"]
 
 build_job:
   stage: build

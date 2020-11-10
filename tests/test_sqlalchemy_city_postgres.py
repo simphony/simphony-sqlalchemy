@@ -3,7 +3,7 @@
 import os
 import uuid
 import unittest2 as unittest
-import sqlite3
+import sqlalchemy
 from osp.wrappers.sqlalchemy import SqlAlchemySession
 
 try:
@@ -15,8 +15,12 @@ except ImportError:
     _namespace_registry.update_namespaces()
     city = _namespace_registry.city
 
-DB = "test_sqlalchemy.db"
-URL = "sqlite:///" + DB
+USER = os.environ.get("POSTGRES_USER") or "postgres"
+PWD = os.environ.get("POSTGRES_PASSWORD") or "123-postgres"
+DB = os.environ.get("POSTGRES_DB") or "postgres"
+HOST = os.environ.get("POSTGRES_HOST") or "127.0.0.1"
+PORT = 5432
+URL = "postgresql://%s:%s@%s:%s/%s" % (USER, PWD, HOST, PORT, DB)
 
 
 CUDS_TABLE = SqlAlchemySession.CUDS_TABLE
@@ -32,16 +36,19 @@ def data_tbl(suffix):
     return DATA_TABLE_PREFIX + suffix
 
 
-class TestSqliteCity(unittest.TestCase):
-    """Test the sqlite wrapper with the city ontology."""
+class TestSqliteCityPostgres(unittest.TestCase):
+    """Test the postgres wrapper with the city ontology."""
 
     def tearDown(self):
         """Remove the database file."""
-        if os.path.exists(DB):
-            os.remove(DB)
+        engine = sqlalchemy.create_engine(URL)
+        with engine.connect() as connection:
+            metadata = sqlalchemy.MetaData(connection)
+            metadata.reflect(engine)
+            metadata.drop_all()
 
     def test_insert(self):
-        """Test inserting in the sqlite table."""
+        """Test inserting in the postgres table."""
         c = city.City(name="Freiburg")
         p1 = city.Citizen(name="Peter")
         p2 = city.Citizen(name="Georg")
@@ -55,7 +62,7 @@ class TestSqliteCity(unittest.TestCase):
         check_state(self, c, p1, p2)
 
     def test_update(self):
-        """Test updating the sqlite table."""
+        """Test updating the postgres table."""
         c = city.City(name="Paris")
         p1 = city.Citizen(name="Peter")
         c.add(p1, rel=city.hasInhabitant)
@@ -73,7 +80,7 @@ class TestSqliteCity(unittest.TestCase):
         check_state(self, c, p1, p2)
 
     def test_delete(self):
-        """Test to delete cuds_objects from the sqlite table."""
+        """Test to delete cuds_objects from the postgres table."""
         c = city.City(name="Freiburg")
         p1 = city.Citizen(name="Peter")
         p2 = city.Citizen(name="Georg")
@@ -309,26 +316,29 @@ class TestSqliteCity(unittest.TestCase):
 
 
 def check_state(test_case, c, p1, p2, db=DB):
-    """Check if the sqlite tables are in the correct state."""
-    with sqlite3.connect(db) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table';")
-        result = set(map(lambda x: x[0], cursor))
-        test_case.assertEqual(result, set([
+    """Check if the postgres tables are in the correct state."""
+    engine = sqlalchemy.create_engine(URL)
+    with engine.connect() as conn:
+        metadata = sqlalchemy.MetaData(conn)
+        metadata.reflect(engine)
+
+        tables = set(metadata.tables.keys())
+        test_case.assertEqual(tables, set([
             RELATIONSHIP_TABLE, data_tbl("VECTOR-INT-2"), CUDS_TABLE,
             NAMESPACES_TABLE, ENTITIES_TABLE, TYPES_TABLE,
             data_tbl("XSD_boolean"), data_tbl("XSD_float"),
             data_tbl("XSD_integer"), data_tbl("XSD_string")]))
 
-        cursor.execute(
-            "SELECT `ts`.`uid`, `tp`.`ns_idx`, `tp`.`name`, `to`.`uid` "
-            "FROM `%s` AS `x`, `%s` AS `ts`, `%s` AS `tp`, `%s` AS `to` "
-            "WHERE `x`.`s`=`ts`.`cuds_idx` AND `x`.`p`=`tp`.`entity_idx` "
-            "AND `x`.`o`=`to`.`cuds_idx`;"
-            % (RELATIONSHIP_TABLE, CUDS_TABLE,
-               ENTITIES_TABLE, CUDS_TABLE))
-        result = set(cursor.fetchall())
+        ts = metadata.tables[CUDS_TABLE].alias("ts")
+        tp = metadata.tables[ENTITIES_TABLE].alias("tp")
+        to = metadata.tables[CUDS_TABLE].alias("to")
+        x = metadata.tables[RELATIONSHIP_TABLE].alias("x")
+        tsc, tpc, toc, xc = ts.c, tp.c, to.c, x.c
+        stmt = sqlalchemy.select([tsc.uid, tpc.ns_idx, tpc.name, toc.uid]) \
+            .select_from(x.join(ts, xc.s == tsc.cuds_idx)
+                         .join(tp, xc.p == tpc.entity_idx)
+                         .join(to, xc.o == toc.cuds_idx))
+        result = set(map(tuple, conn.execute(stmt)))
         test_case.assertEqual(result, {
             (str(uuid.UUID(int=0)), 1, "hasPart", str(c.uid)),
             (str(c.uid), 1, "hasInhabitant", str(p1.uid)),
@@ -338,22 +348,20 @@ def check_state(test_case, c, p1, p2, db=DB):
             (str(c.uid), 1, "isPartOf", str(uuid.UUID(int=0)))
         })
 
-        cursor.execute(
-            "SELECT `ns_idx`, `namespace` FROM `%s`;"
-            % NAMESPACES_TABLE
-        )
-        result = set(cursor.fetchall())
+        ns_tbl = metadata.tables[NAMESPACES_TABLE]
+        stmt = sqlalchemy.select([ns_tbl.c.ns_idx, ns_tbl.c.namespace])
+        result = set(map(tuple, conn.execute(stmt)))
         test_case.assertEqual(result, {
             (1, "http://www.osp-core.com/city#")
         })
 
-        cursor.execute(
-            "SELECT `ts`.`uid`, `to`.`ns_idx`, `to`.`name` "
-            "FROM `%s` AS `x`, `%s` AS `ts`, `%s` AS `to` "
-            "WHERE `x`.`s`=`ts`.`cuds_idx` AND `x`.`o`=`to`.`entity_idx`;"
-            % (TYPES_TABLE, CUDS_TABLE,
-               ENTITIES_TABLE))
-        result = set(cursor.fetchall())
+        ts = metadata.tables[CUDS_TABLE].alias("ts")
+        to = metadata.tables[ENTITIES_TABLE].alias("to")
+        x = metadata.tables[TYPES_TABLE].alias("x")
+        stmt = sqlalchemy.select([ts.c.uid, to.c.ns_idx, to.c.name]) \
+            .select_from(x.join(ts, x.c.s == ts.c.cuds_idx)
+                         .join(to, x.c.o == to.c.entity_idx))
+        result = set(map(tuple, conn.execute(stmt)))
         test_case.assertEqual(result, {
             (str(c.uid), 1, 'City'),
             (str(p1.uid), 1, 'Citizen'),
@@ -361,27 +369,25 @@ def check_state(test_case, c, p1, p2, db=DB):
             (str(uuid.UUID(int=0)), 1, 'CityWrapper')
         })
 
-        cursor.execute(
-            "SELECT `ts`.`uid`, `tp`.`ns_idx`, `tp`.`name`, `x`.`o` "
-            "FROM `%s` AS `x`, `%s` AS `ts`, `%s` AS `tp` "
-            "WHERE `x`.`s`=`ts`.`cuds_idx` AND `x`.`p`=`tp`.`entity_idx` ;"
-            % (data_tbl("XSD_string"), CUDS_TABLE,
-               ENTITIES_TABLE))
-        result = set(cursor.fetchall())
+        ts = metadata.tables[CUDS_TABLE].alias("ts")
+        tp = metadata.tables[ENTITIES_TABLE].alias("to")
+        x = metadata.tables[data_tbl("XSD_string")].alias("x")
+        stmt = sqlalchemy.select([ts.c.uid, tp.c.ns_idx, tp.c.name, x.c.o]) \
+            .select_from(x.join(ts, x.c.s == ts.c.cuds_idx)
+                         .join(tp, x.c.p == tp.c.entity_idx))
+        result = set(map(tuple, conn.execute(stmt)))
         test_case.assertEqual(result, {
             (str(p1.uid), 1, 'name', 'Peter'),
             (str(c.uid), 1, 'name', 'Freiburg'),
             (str(p2.uid), 1, 'name', 'Georg')
         })
 
-        cursor.execute(
-            "SELECT `ts`.`uid`, `tp`.`ns_idx`, `tp`.`name`, "
-            "`x`.`o___0` , `x`.`o___1` "
-            "FROM `%s` AS `x`, `%s` AS `ts`, `%s` AS `tp` "
-            "WHERE `x`.`s`=`ts`.`cuds_idx` AND `x`.`p`=`tp`.`entity_idx` ;"
-            % (data_tbl("VECTOR-INT-2"), CUDS_TABLE,
-               ENTITIES_TABLE))
-        result = set(cursor.fetchall())
+        x = metadata.tables[data_tbl("VECTOR-INT-2")].alias("x")
+        stmt = sqlalchemy.select([ts.c.uid, tp.c.ns_idx, tp.c.name,
+                                  x.c.o___0, x.c.o___1]) \
+            .select_from(x.join(ts, x.c.s == ts.c.cuds_idx)
+                         .join(tp, x.c.p == tp.c.entity_idx))
+        result = set(map(tuple, conn.execute(stmt)))
         test_case.assertEqual(result, {
             (str(c.uid), 1, 'coordinates', 0, 0)
         })
@@ -389,56 +395,79 @@ def check_state(test_case, c, p1, p2, db=DB):
 
 def check_db_cleared(test_case, db_file):
     """Check whether the database has been cleared successfully."""
-    with sqlite3.connect(db_file) as conn:
-        cursor = conn.cursor()
+    engine = sqlalchemy.create_engine(URL)
+    with engine.connect() as conn:
+        metadata = sqlalchemy.MetaData(conn)
+        metadata.reflect(engine)
 
-        cursor.execute(f"SELECT * FROM {CUDS_TABLE};")
-        test_case.assertEqual(list(cursor), list())
-        cursor.execute(f"SELECT * FROM {ENTITIES_TABLE};")
-        test_case.assertEqual(list(cursor), list())
-        cursor.execute(f"SELECT * FROM {TYPES_TABLE};")
-        test_case.assertEqual(list(cursor), list())
-        cursor.execute(f"SELECT * FROM {NAMESPACES_TABLE};")
-        test_case.assertEqual(list(cursor), list())
-        cursor.execute(f"SELECT * FROM {RELATIONSHIP_TABLE};")
-        test_case.assertEqual(list(cursor), list())
+        tbl = metadata.tables[CUDS_TABLE]
+        result = conn.execute(tbl.select())
+        test_case.assertEqual(list(result), list())
+        tbl = metadata.tables[ENTITIES_TABLE]
+        result = conn.execute(tbl.select())
+        test_case.assertEqual(list(result), list())
+        tbl = metadata.tables[TYPES_TABLE]
+        result = conn.execute(tbl.select())
+        test_case.assertEqual(list(result), list())
+        tbl = metadata.tables[NAMESPACES_TABLE]
+        result = conn.execute(tbl.select())
+        test_case.assertEqual(list(result), list())
+        tbl = metadata.tables[RELATIONSHIP_TABLE]
+        result = conn.execute(tbl.select())
+        test_case.assertEqual(list(result), list())
 
         # DATA TABLES
-        with SqlAlchemySession(URL) as s:
-            table_names = s._get_table_names(DATA_TABLE_PREFIX)
+        table_names = filter(lambda x: x.startswith(DATA_TABLE_PREFIX),
+                             metadata.tables.keys())
         for table_name in table_names:
-            cursor.execute(f"SELECT * FROM `{table_name}`;")
-            test_case.assertEqual(list(cursor), list())
+            tbl = metadata.tables[table_name]
+            result = conn.execute(tbl.select())
+            test_case.assertEqual(list(result), list())
 
 
 def update_db(db, c, p1, p2, p3):
     """Make some changes to the data in the database."""
-    with sqlite3.connect(db) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT `uid`, `cuds_idx` FROM {CUDS_TABLE};")
-        m = dict(map(lambda x: (uuid.UUID(hex=x[0]), x[1]), cursor))
-        cursor.execute(f"SELECT `name`, `entity_idx` "
-                       f"FROM {ENTITIES_TABLE} ;")
-        e = dict(cursor)
+    engine = sqlalchemy.create_engine(URL)
+    with engine.begin() as conn:
+        metadata = sqlalchemy.MetaData(conn)
+        metadata.reflect(engine)
 
-        cursor.execute(f"UPDATE {data_tbl('XSD_string')} SET o = 'Paris' "
-                       f"WHERE s={m[c.uid]} AND p={e['name']};")
-        cursor.execute(f"UPDATE {data_tbl('XSD_string')} SET o = 'Maria' "
-                       f"WHERE s={m[p1.uid]} AND p={e['name']};")
-        cursor.execute(f"UPDATE {data_tbl('XSD_string')} SET o = 'Jacob' "
-                       f"WHERE s={m[p2.uid]} AND p={e['name']};")
+        tbl = metadata.tables[CUDS_TABLE]
+        stmt = sqlalchemy.select([tbl.c.uid, tbl.c.cuds_idx])
+        m = dict(map(lambda x: (uuid.UUID(hex=x[0]), x[1]),
+                     conn.execute(stmt)))
+        tbl = metadata.tables[ENTITIES_TABLE]
+        stmt = sqlalchemy.select([tbl.c.name, tbl.c.entity_idx])
+        e = dict(map(tuple, conn.execute(stmt)))
 
-        cursor.execute(f"DELETE FROM {RELATIONSHIP_TABLE} "
-                       f"WHERE s == '{m[p2.uid]}' OR o = '{m[p2.uid]}'")
-        cursor.execute(f"DELETE FROM {RELATIONSHIP_TABLE} "
-                       f"WHERE s == '{m[p3.uid]}' OR o = '{m[p3.uid]}'")
-        cursor.execute(f"DELETE FROM {data_tbl('XSD_string')} "
-                       f"WHERE s == '{m[p3.uid]}'")
-        cursor.execute(f"DELETE FROM '{data_tbl('XSD_integer')}' "
-                       f"WHERE s == '{m[p3.uid]}'")
-        cursor.execute(f"DELETE FROM {CUDS_TABLE} "
-                       f"WHERE cuds_idx == '{m[p3.uid]}'")
-        conn.commit()
+        stmts = list()
+        tbl = metadata.tables[data_tbl('XSD_string')]
+        stmts += [
+            tbl.update().where((tbl.c.s == m[c.uid])
+                               & (tbl.c.p == e["name"])).values(o="Paris"),
+            tbl.update().where((tbl.c.s == m[p1.uid])
+                               & (tbl.c.p == e["name"])).values(o="Maria"),
+            tbl.update().where((tbl.c.s == m[p2.uid])
+                               & (tbl.c.p == e["name"])).values(o="Jacob")
+        ]
+
+        tbl = metadata.tables[RELATIONSHIP_TABLE]
+        stmts += [
+            tbl.delete().where(
+                (tbl.c.s == m[p3.uid]) | (tbl.c.o == m[p3.uid])
+                | (tbl.c.s == m[p2.uid]) | (tbl.c.o == m[p2.uid]))
+        ]
+        tbl = metadata.tables[data_tbl('XSD_string')]
+        stmts += [tbl.delete().where(tbl.c.s == m[p3.uid])]
+        tbl = metadata.tables[data_tbl('XSD_integer')]
+        stmts += [tbl.delete().where(tbl.c.s == m[p3.uid])]
+        tbl = metadata.tables[TYPES_TABLE]
+        stmts += [tbl.delete().where(tbl.c.s == m[p3.uid])]
+        tbl = metadata.tables[CUDS_TABLE]
+        stmts += [tbl.delete().where(tbl.c.cuds_idx == m[p3.uid])]
+
+        for stmt in stmts:
+            conn.execute(stmt)
 
 
 if __name__ == '__main__':
