@@ -32,6 +32,11 @@ The releases of OSP core are available [here](https://github.com/simphony/osp-co
 - sqlalchemy
 - psycopg2
 
+The easiest way to run a sqlalchemy server is to use docker:
+```sh
+docker run -d -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=123-postgres -e POSTGRES_DB=postgres -e POSTGRES_HOST=db -p 5432:5432 --name postgres --restart=always postgres:11.7
+```
+
 ## Installation
 
 The package requires python 3 (tested for 3.6), installation is based on setuptools.
