@@ -8,14 +8,6 @@ from osp.core.session.db.sql_migrate import SqlMigrate
 logger = logging.getLogger(__name__)
 
 
-class SqlAlchemyMigrate(SqlMigrate):
-    """Migrate sqlite tables to the latest db schema."""
-
-    def __init__(self, url):
-        """Initialize the migration tool with an SqliteSession."""
-        super().__init__(SqlAlchemySession(url))
-
-
 def install_from_terminal():
     """Migrate sqlite databases from terminal."""
     # Parse the user arguments
@@ -27,8 +19,9 @@ def install_from_terminal():
 
     args = parser.parse_args()
 
-    m = SqlAlchemySession(args.url)
-    m.run()
+    with SqlAlchemySession(args.url) as session:
+        m = SqlMigrate(session)
+        m.run()
 
 
 if __name__ == "__main__":
