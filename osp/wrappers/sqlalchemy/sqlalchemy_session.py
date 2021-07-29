@@ -181,7 +181,7 @@ class SqlAlchemySession(SqlWrapperSession):
         """
         if rdflib_datatype is None:
             return sqlalchemy.String()
-        if rdflib_datatype == "UUID":
+        if rdflib_datatype == "UID":
             return sqlalchemy.String(36)
         if rdflib_datatype == rdflib.XSD.integer:
             return sqlalchemy.Integer
@@ -192,7 +192,7 @@ class SqlAlchemySession(SqlWrapperSession):
         if rdflib_datatype == rdflib.XSD.string:
             return sqlalchemy.String()
         if str(rdflib_datatype).startswith(
-                str(rdflib_cuba["datatypes/STRING-"])):
+                str(rdflib_cuba["_datatypes/STRING-"])):
             return sqlalchemy.String(int(str(rdflib_datatype).split(":")[-1]))
         else:
             raise NotImplementedError(f"Unsupported data type "
