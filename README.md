@@ -1,17 +1,6 @@
-[![pipeline status](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/badges/master/pipeline.svg)](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/commits/master)
-[![coverage report](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/badges/master/coverage.svg)](https://gitlab.cc-asp.fraunhofer.de/simphony/wrappers/sqlalchemy-wrapper/commits/master)
-
 # SQLAlchemy Wrapper
 
-Wrapper for SQLAlchemy developed by the SimPhoNy group at Fraunhofer IWM.
-
-Copyright (c) 2014-2019, Adham Hashibon and Materials Informatics Team at Fraunhofer IWM.
-All rights reserved.
-Redistribution and use are limited to the scope agreed with the end user.
-No parts of this software may be used outside of this context.
-No redistribution is allowed without explicit written permission.
-
-Tested with SQLite and Postgresql backends.
+Wrapper for SQLAlchemy developed by the Materials Informatics team at Fraunhofer IWM. Tested with SQLite and Postgresql backends.
 
 ## Requirements
 
@@ -62,9 +51,9 @@ Testing is included in setuptools:
 python3 setup.py test
 ```
 
-## Documentation
+[//]: # (## Documentation)
 
-TODO
+[//]: # (TODO)
 
 ## Directory structure
 
