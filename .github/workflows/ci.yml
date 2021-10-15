@@ -31,7 +31,7 @@ jobs:
       - name: Install matching osp-core
         run: |
           OSP_CORE_MIN=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MIN)"
-          OSP_CORE_MAX=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MAX)")
+          OSP_CORE_MAX=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MAX)"
           echo "$OSP_CORE_MIN"
           verlte() { [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]; }
           verlt() { [ "$1" = "$2" ] && return 1 || verlte $1 $2; }
