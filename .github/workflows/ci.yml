@@ -4,7 +4,7 @@ on: pull_request
 
 jobs:
   code_analysis:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -20,7 +20,7 @@ jobs:
         run: bandit -r osp --skip B101
   
   test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     services:
       # Label used to access the service container
       db:
