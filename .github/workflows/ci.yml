@@ -33,14 +33,14 @@ jobs:
           POSTGRES_HOST: "db"
 
     steps:
+      - name: Checkout wrapper code
+        uses: actions/checkout@v2
+
       - name: Checkout osp-core
         uses: actions/checkout@v2
         with:
           repository: simphony/osp-core
           path: osp-core
-
-      - name: Checkout wrapper code
-        uses: actions/checkout@v2
 
       - name: Install matching osp-core
         run: |
