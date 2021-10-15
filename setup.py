@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-from packageinfo import VERSION, NAME
+from packageinfo import VERSION, NAME, OSP_CORE_MIN, OSP_CORE_MAX
 
 # Read description
 with open('README.md', 'r') as readme:
@@ -19,7 +19,8 @@ setup(
     keywords='simphony, cuds, Fraunhofer IWM, sqlalchemy',
     long_description=README_TEXT,
     install_requires=[
-        'osp-core>=3.0.0',
+        'osp-core>=' + OSP_CORE_MIN,
+        'osp-core<' + OSP_CORE_MAX,
         'sqlalchemy',
         'psycopg2-binary'
     ],
