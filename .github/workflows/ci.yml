@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Flake8
-        run: flake8 . --ignore=W503 --docstring-convention=google
+        run: flake8 . --exclude=*/__init__.py,.eggs/,build/,osp-core/ --docstring-convention=google
 
       - name: Radon
         run: |
@@ -35,6 +35,8 @@ jobs:
 
       - name: Install matching osp-core
         run: |
+          verlte() { [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]; }
+          verlt() { [ "$1" = "$2" ] && return 1 || verlte $1 $2; }
           cd osp-core
           echo "OSP_CORE_VERSION=$(python -c "import packageinfo; print(packageinfo.VERSION)")" >> $GITHUB_ENV
           if ! (verlte $OSP_CORE_MIN $OSP_CORE_VERSION && verlt $OSP_CORE_VERSION $OSP_CORE_MAX) ; then
