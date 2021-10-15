@@ -27,11 +27,13 @@ jobs:
           echo "OSP_CORE_MIN=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MIN)")" >> $GITHUB_ENV
           echo "OSP_CORE_MAX=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MAX)")" >> $GITHUB_ENV
 
-      - name: Install matching osp-core
+      - name: Checkout osp-core
         uses: actions/checkout@v2
         with:
           repository: simphony/osp-core
           path: osp-core
+
+      - name: Install matching osp-core
         run: |
           cd osp-core
           echo "OSP_CORE_VERSION=$(python -c "import packageinfo; print(packageinfo.VERSION)")" >> $GITHUB_ENV
@@ -45,5 +47,5 @@ jobs:
       - name: unittesting
         run: |
           coverage run setup.py test
-          coverage report --omit=tests/*,*/.eggs/* --skip-covered
+          coverage report --omit=osp-core/*,tests/*,*/.eggs/* --skip-covered
 
