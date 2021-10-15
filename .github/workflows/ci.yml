@@ -4,7 +4,7 @@ on: pull_request
 
 jobs:
   code_analysis:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
 
@@ -39,6 +39,9 @@ jobs:
           repository: simphony/osp-core
           path: osp-core
 
+      - name: Checkout wrapper code
+        uses: actions/checkout@v2
+
       - name: Install matching osp-core
         run: |
           OSP_CORE_MIN=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MIN)")
@@ -53,7 +56,6 @@ jobs:
           pip install .
           pico install city
 
-      - uses: actions/checkout@v2
       - name: unittesting
         run: |
           coverage run setup.py test
