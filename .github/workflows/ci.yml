@@ -58,6 +58,7 @@ jobs:
 
       - name: unittesting
         run: |
+          pip install coverage
           coverage run setup.py test
           coverage report --omit=osp-core/*,tests/*,*/.eggs/* --skip-covered
 
