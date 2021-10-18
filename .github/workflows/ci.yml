@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Flake8
-        run: flake8 . --ignore=W503 --docstring-convention=google
+        run: flake8 . --exclude=*/__init__.py,.eggs/,build/,osp-core/ --docstring-convention=google
 
       - name: Radon
         run: |
@@ -20,12 +20,21 @@ jobs:
         run: bandit -r osp --skip B101
   
   test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:11.7
+        env:
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "123-postgres"
+          POSTGRES_DB: "postgres"
+          POSTGRES_HOST: "db"
+        ports:
+          - 5432:5432
+
     steps:
-      - name: Get osp-core version requirements
-        run: |
-          echo "OSP_CORE_MIN=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MIN)")" >> $GITHUB_ENV
-          echo "OSP_CORE_MAX=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MAX)")" >> $GITHUB_ENV
+      - name: Checkout wrapper code
+        uses: actions/checkout@v2
 
       - name: Checkout osp-core
         uses: actions/checkout@v2
@@ -35,17 +44,21 @@ jobs:
 
       - name: Install matching osp-core
         run: |
+          OSP_CORE_MIN=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MIN)")
+          OSP_CORE_MAX=$(python -c "import packageinfo; print(packageinfo.OSP_CORE_MAX)")
+          verlte() { [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]; }
+          verlt() { [ "$1" = "$2" ] && return 1 || verlte $1 $2; }
           cd osp-core
-          echo "OSP_CORE_VERSION=$(python -c "import packageinfo; print(packageinfo.VERSION)")" >> $GITHUB_ENV
+          OSP_CORE_VERSION=$(python -c "import packageinfo; print(packageinfo.VERSION)")
           if ! (verlte $OSP_CORE_MIN $OSP_CORE_VERSION && verlt $OSP_CORE_VERSION $OSP_CORE_MAX) ; then
             git checkout "tags/v${OSP_CORE_MIN}-beta" || git checkout "v${OSP_CORE_MIN}-dev";
           fi
           pip install .
           pico install city
 
-      - uses: actions/checkout@v2
       - name: unittesting
         run: |
+          pip install coverage
           coverage run setup.py test
           coverage report --omit=osp-core/*,tests/*,*/.eggs/* --skip-covered
 
