@@ -22,15 +22,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      # Label used to access the service container
       db:
-        # Docker Hub image
         image: postgres:11.7
         env:
           POSTGRES_USER: "postgres"
           POSTGRES_PASSWORD: "123-postgres"
           POSTGRES_DB: "postgres"
           POSTGRES_HOST: "db"
+        ports:
+          - 5432:5432
 
     steps:
       - name: Checkout wrapper code
