@@ -20,7 +20,7 @@ jobs:
         run: bandit -r osp --skip B101
   
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     services:
       db:
         image: postgres:11.7
@@ -58,7 +58,6 @@ jobs:
 
       - name: unittesting
         run: |
-          pip install coverage
           coverage run setup.py test
           coverage report --omit=osp-core/*,tests/*,*/.eggs/* --skip-covered
 
