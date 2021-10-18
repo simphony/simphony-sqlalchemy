@@ -26,6 +26,7 @@ setup(
     ],
     tests_require=[
         "unittest2",
+        "coverage"
     ],
     packages=find_packages(),
     test_suite='tests',
