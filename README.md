@@ -17,7 +17,7 @@ The following table describes the version compatibility between these two packag
 |         2.2.1          |         3.5.X-beta         |
 |         2.2.X          | \>= 3.5.0-beta, < 4.0.0rc0 |
 
-The releases of OSP core are available [here](https://github.com/simphony/osp-core/releases). Releases of OSP core from version 3.7.0 are also available on [PyPI](https://pypi.org/project/osp-core/).
+The releases of OSP core are available [here](https://github.com/simphony/osp-core/releases). Releases of OSP core are also available on [PyPI](https://pypi.org/project/osp-core/) starting from version 3.7.0.
 
 #### Additional required packages
 - sqlalchemy
