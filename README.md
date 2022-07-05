@@ -7,15 +7,17 @@ Wrapper for SQLAlchemy developed by the Materials Informatics team at Fraunhofer
 The SQLAlchemy wrapper is built on top of the [OSP core](https://github.com/simphony/osp-core) package.
 The following table describes the version compatibility between these two packages.
 
-| __SQLAlchemy wrapper__ | __OSP core__ |
-|   :---:   |   :---:  |
-|   1.0.0   |   3.1.x-beta  |
-|   2.0.0   |   3.2.x-beta  |
-|   2.1.[0-1]   |   3.3.[1-8]-beta  |
-|   2.1.2   |   3.4.X-beta  |
-|   2.2.0   |   3.5.X-beta  |
+| __SQLAlchemy wrapper__ |        __OSP core__        |
+|:----------------------:|:--------------------------:|
+|         1.0.0          |         3.1.x-beta         |
+|         2.0.0          |         3.2.x-beta         |
+|       2.1.[0-1]        |       3.3.[1-8]-beta       |
+|         2.1.2          |         3.4.X-beta         |
+|         2.2.0          |         3.5.X-beta         |
+|         2.2.1          |         3.5.X-beta         |
+|         2.2.X          | \>= 3.5.0-beta, < 4.0.0rc0 |
 
-The releases of OSP core are available [here](https://github.com/simphony/osp-core/releases).
+The releases of OSP core are available [here](https://github.com/simphony/osp-core/releases). Releases of OSP core are also available on [PyPI](https://pypi.org/project/osp-core/) starting from version 3.7.0.
 
 #### Additional required packages
 - sqlalchemy
